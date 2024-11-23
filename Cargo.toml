@@ -1,0 +1,26 @@
+[package]
+name = "spmv-oneshot"
+version = "0.1.2"
+edition = "2021"
+
+authors = ["lino <lino_snsalias@outlook.com>"]
+description = "An oneshot channel that can turn from Single-Producer-Single-Consumer mode to Single-Producer-Multiple-Viewer mode."
+homepage = "https://github.com/ljsnogard/spmv-oneshot"
+keywords = ["async", "channel"]
+categories = ["no-std"]
+license = "MIT/Apache-2.0"
+readme = "README.md"
+
+[dependencies]
+pincol = { git = "https://github.com/ljsnogard/pincol.git", branch = "dev/0.1.2" }
+
+pin-project = { version = "1.1.*" }
+
+[dev-dependencies]
+core_malloc = { git = "https://github.com/ljsnogard/core_malloc.git", tag = "0.1.1" }
+mm_ptr = { git = "https://github.com/ljsnogard/mm_ptr.git", branch = "dev/0.1.2" }
+
+futures-lite = { version = "2" }
+tokio = { version = "1", features = ["full"] }
+log = { version = "0.4.*" }
+env_logger = { version = "0.11.*" }
