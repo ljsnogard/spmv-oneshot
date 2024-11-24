@@ -237,12 +237,12 @@ where
                 unreachable!("[PeekFuture::poll] oneshot.try_peek")
             };
             #[cfg(test)]
-            log::trace!("[asyncex-channel::PeekFuture::poll]({oneshot:p}) try_peek err({e:?})");
+            log::trace!("[PeekFuture::poll]({oneshot:p}) try_peek err({e:?})");
             return Poll::Ready(Result::Err(e));
         };
         if let Option::Some(t) = opt {
             #[cfg(test)]
-            log::trace!("[asyncex-channel::PeekFuture::poll]({oneshot:p}) try_peek ok");
+            log::trace!("[PeekFuture::poll]({oneshot:p}) try_peek ok");
             return Poll::Ready(Result::Ok(t));
         }
         let peeker_pin = this.peeker_.as_mut();
@@ -253,7 +253,7 @@ where
                 pin_mut!(fut_cancel);
                 if fut_cancel.poll(cx).is_ready() {
                     #[cfg(test)]
-                    log::trace!("[asyncex-channel::PeekFuture::poll]({oneshot:p}) Cancelled 1");
+                    log::trace!("[PeekFuture::poll]({oneshot:p}) Cancelled 1");
                     return Poll::Ready(Result::Err(RxError::Cancelled));
                 }
             }
@@ -261,7 +261,7 @@ where
             let opt_g = mutex.acquire().may_cancel_with(cancel);
             let Option::Some(mut g) = opt_g else {
                 #[cfg(test)]
-                log::trace!("[asyncex-channel::PeekFuture::poll]({oneshot:p}) Cancelled 2");
+                log::trace!("[PeekFuture::poll]({oneshot:p}) Cancelled 2");
                 return Poll::Ready(Result::Err(RxError::Cancelled));
             };
             debug_assert!(slot.attached_list().is_none());
@@ -275,7 +275,7 @@ where
             debug_assert!(r.is_ok());
         };
         #[cfg(test)]
-        log::trace!("[asyncex-channel::PeekFuture::poll]({oneshot:p}) pending");
+        log::trace!("[PeekFuture::poll]({oneshot:p}) pending");
         Poll::Pending
     }
 }
