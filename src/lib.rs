@@ -11,10 +11,10 @@ mod peeker_;
 mod recver_;
 mod sender_;
 
-pub use oneshot_::Oneshot;
-pub use peeker_::{Peeker, PeekAsync};
+pub use oneshot_::{Oneshot, RecvFuture};
+pub use peeker_::{Peeker, PeekAsync, PeekFuture};
 pub use recver_::{Receiver, RxError};
-pub use sender_::{Sender, TxError};
+pub use sender_::{Sender, SendTask, TxError};
 
 /// This exports the internal dependencies.
 pub mod x_deps {
