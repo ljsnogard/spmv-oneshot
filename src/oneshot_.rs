@@ -105,7 +105,7 @@ where
         weak_count: impl FnOnce(&S) -> usize,
     ) -> Result<Split<S, T, O>, S>
     where
-        S: Deref<Target = Self> + Clone + Send + Sync,
+        S: Clone + Send + Sync + Deref<Target = Self>,
     {
         let x = strong_count(&oneshot) > 1 ||
             weak_count(&oneshot) > 0;
