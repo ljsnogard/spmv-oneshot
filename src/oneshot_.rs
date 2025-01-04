@@ -19,7 +19,7 @@ use abs_sync::{
 };
 use atomex::{AtomicFlags, StrictOrderings, TrAtomicData, TrCmpxchOrderings};
 use atomic_sync::{
-    mutex::embedded::{SpinningMutex, TrMutexSignal},
+    mutex::preemptive::{SpinningMutex, TrMutexSignal},
     x_deps::abs_sync,
 };
 use pincol::{
@@ -169,7 +169,9 @@ where
         let s = self.flags_.value();
         if Flags::<O>::expect_data_valid(s) {
             let mutex = self.value_mutex();
-            let g = mutex.acquire().wait();
+            let acq = mutex.acquire();
+            pin_mut!(acq);
+            let g = acq.lock().wait();
             let t = unsafe {
                 let p = (*g).as_ptr();
                 &*p
@@ -222,8 +224,10 @@ where
         C: TrCancellationToken,
     {
         let mutex = self.value_mutex();
-        let try_acquire = mutex.acquire().may_cancel_with(cancel);
-        let Option::Some(mut guard) = try_acquire else {
+        let acq = mutex.acquire();
+        pin_mut!(acq);
+        let lock_res = acq.lock().may_cancel_with(cancel);
+        let Option::Some(mut guard) = lock_res else {
             return Result::Err(TxError::Cancelled);
         };
         if let Result::Err(s) = self.flags_.try_set_sent() {
@@ -260,7 +264,9 @@ where
         }
 
         let mutex = self.queue_.mutex();
-        let mut g = mutex.acquire().wait();
+        let acq = mutex.acquire();
+        pin_mut!(acq);
+        let mut g = acq.lock().wait();
         let queue_pin = (*g).as_mut();
         let _ = queue_pin.clear(wake_);
     }
@@ -413,7 +419,9 @@ where
                     }
                 }
                 let mutex = oneshot.wake_queue().mutex();
-                let opt_g = mutex.acquire().may_cancel_with(cancel);
+                let acq = mutex.acquire();
+                pin_mut!(acq);
+                let opt_g = acq.lock().may_cancel_with(cancel);
                 let Option::Some(mut g) = opt_g else {
                     #[cfg(test)]
                     log::trace!("[RecvFuture::Poll] Cancelled 3");
@@ -447,8 +455,10 @@ where
         // We need to move the data which might take some time. So acquiring
         // the mutex is a must.
         let mutex = oneshot.value_mutex();
-        let Option::Some(mut g) = mutex
-            .acquire()
+        let acq = mutex.acquire();
+        pin_mut!(acq);
+        let Option::Some(mut g) = acq
+            .lock()
             .may_cancel_with(this.cancel_.as_mut())
         else {
             #[cfg(test)]
@@ -842,7 +852,7 @@ mod tests_ {
         assert!(!peeker.is_data_ready());
         assert!(tx.send(SEND_CONT).wait().is_ok());
         let peek_res = peeker.as_mut().peek_async().await;
-        assert!(peek_res.map_or(false, |u| *u == SEND_CONT));
+        assert!(peek_res.is_ok_and(|u| *u == SEND_CONT));
 
         assert!(!tx.can_send());
         assert!(tx.send(0).wait().is_err());
@@ -852,7 +862,7 @@ mod tests_ {
             .try_peek()
             .ok()
             .flatten()
-            .map_or(false, |u| *u == SEND_CONT)
+            .is_some_and(|u| *u == SEND_CONT)
         );
     }
 

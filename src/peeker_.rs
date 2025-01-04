@@ -258,7 +258,9 @@ where
                 }
             }
             let mutex = oneshot.wake_queue().mutex();
-            let opt_g = mutex.acquire().may_cancel_with(cancel);
+            let acq = mutex.acquire();
+            pin_mut!(acq);
+            let opt_g = acq.lock().may_cancel_with(cancel);
             let Option::Some(mut g) = opt_g else {
                 #[cfg(test)]
                 log::trace!("[PeekFuture::poll]({oneshot:p}) Cancelled 2");
