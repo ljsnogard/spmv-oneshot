@@ -17,7 +17,7 @@ pincol = { git = "https://github.com/ljsnogard/pincol.git", branch = "dev/0.1.2"
 pin-project = { version = "1.1.*" }
 
 [dev-dependencies]
-core_malloc = { git = "https://github.com/ljsnogard/core_malloc.git", tag = "0.1.1" }
+core_malloc = { git = "https://github.com/ljsnogard/core_malloc.git", branch = "dev/0.1.2" }
 mm_ptr = { git = "https://github.com/ljsnogard/mm_ptr.git", branch = "dev/0.1.2" }
 
 futures-lite = { version = "2" }
