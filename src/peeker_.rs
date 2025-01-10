@@ -12,11 +12,8 @@
 use pin_utils::pin_mut;
 use pin_project::pin_project;
 
-use abs_sync::{
-    cancellation::{
-        NonCancellableToken, TrCancellationToken, TrIntoFutureMayCancel,
-    },
-    x_deps::pin_utils,
+use abs_sync::cancellation::{
+    NonCancellableToken, TrCancellationToken, TrIntoFutureMayCancel,
 };
 use atomex::TrCmpxchOrderings;
 use pincol::x_deps::atomic_sync::x_deps::{abs_sync, atomex};

@@ -13,10 +13,7 @@
 use pin_project::pin_project;
 use pin_utils::pin_mut;
 
-use abs_sync::{
-    cancellation::{CancelledToken, TrCancellationToken},
-    x_deps::pin_utils,
-};
+use abs_sync::cancellation::{CancelledToken, TrCancellationToken};
 use atomex::{AtomicFlags, StrictOrderings, TrAtomicData, TrCmpxchOrderings};
 use atomic_sync::{
     mutex::preemptive::{SpinningMutex, TrMutexSignal},
@@ -77,10 +74,7 @@ where
     /// use pin_utils::pin_mut;
     /// 
     /// use atomex::StrictOrderings;
-    /// use spmv_oneshot::{
-    ///     x_deps::{atomex, pin_utils},
-    ///     Oneshot,
-    /// };
+    /// use spmv_oneshot::{x_deps::atomex, Oneshot};
     ///
     /// let oneshot = Oneshot::<(), StrictOrderings>::new();
     /// pin_mut!(oneshot);

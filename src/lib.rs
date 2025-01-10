@@ -22,5 +22,4 @@ pub mod x_deps {
 
     pub use pincol::x_deps::atomic_sync;
     pub use atomic_sync::x_deps::{abs_sync, atomex};
-    pub use abs_sync::x_deps::pin_utils;
 }

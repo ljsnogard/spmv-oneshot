@@ -15,6 +15,7 @@ readme = "README.md"
 pincol = { git = "https://github.com/ljsnogard/pincol.git", branch = "dev/0.1.2" }
 
 pin-project = { version = "1.1.*" }
+pin-utils = { version = "*" }
 
 [dev-dependencies]
 core_malloc = { git = "https://github.com/ljsnogard/core_malloc.git", branch = "dev/0.1.2" }
