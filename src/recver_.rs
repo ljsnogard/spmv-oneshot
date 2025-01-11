@@ -165,10 +165,10 @@ where
         ReceiveAsync(receiver)
     }
 
-    pub fn may_cancel_with<C>(
+    pub fn may_cancel_with<'f, C>(
         self,
-        cancel: Pin<&'a mut C>,
-    ) -> RecvFuture<'a, C, B, T, O>
+        cancel: Pin<&'f mut C>,
+    ) -> RecvFuture<'a, 'f, C, B, T, O>
     where
         C: TrCancellationToken,
     {
@@ -181,7 +181,7 @@ where
     B: Deref<Target = Oneshot<T, O>>,
     O: TrCmpxchOrderings,
 {
-    type IntoFuture = RecvFuture<'a, NonCancellableToken, B, T, O>;
+    type IntoFuture = RecvFuture<'a, 'a, NonCancellableToken, B, T, O>;
     type Output = <Self::IntoFuture as Future>::Output;
 
     fn into_future(self) -> Self::IntoFuture {
@@ -190,7 +190,7 @@ where
     }
 }
 
-impl<'a, B, T, O> TrIntoFutureMayCancel<'a> for ReceiveAsync<'a, B, T, O>
+impl<B, T, O> TrIntoFutureMayCancel for ReceiveAsync<'_, B, T, O>
 where
     B: Deref<Target = Oneshot<T, O>>,
     O: TrCmpxchOrderings,
@@ -198,12 +198,12 @@ where
     type MayCancelOutput = <Self as IntoFuture>::Output;
 
     #[inline(always)]
-    fn may_cancel_with<C>(
+    fn may_cancel_with<'f, C: TrCancellationToken>(
         self,
-        cancel: Pin<&'a mut C>,
+        cancel: Pin<&'f mut C>,
     ) -> impl Future<Output = Self::MayCancelOutput>
     where
-        C: 'a + TrCancellationToken,
+        Self: 'f,
     {
         ReceiveAsync::may_cancel_with(self, cancel)
     }

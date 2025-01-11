@@ -137,12 +137,12 @@ where
         PeekAsync(peeker)
     }
 
-    pub fn may_cancel_with<C>(
+    pub fn may_cancel_with<'f, C: TrCancellationToken>(
         self,
-        cancel: Pin<&'a mut C>,
-    ) -> PeekFuture<'a, C, B, T, O>
+        cancel: Pin<&'f mut C>,
+    ) -> PeekFuture<'a, 'f, C, B, T, O>
     where
-        C: TrCancellationToken,
+        Self: 'f,
     {
         PeekFuture::new(self.0, cancel)
     }
@@ -153,7 +153,7 @@ where
     B: Deref<Target = Oneshot<T, O>>,
     O: TrCmpxchOrderings,
 {
-    type IntoFuture = PeekFuture<'a, NonCancellableToken, B, T, O>;
+    type IntoFuture = PeekFuture<'a, 'a, NonCancellableToken, B, T, O>;
     type Output = <Self::IntoFuture as Future>::Output;
 
     fn into_future(self) -> Self::IntoFuture {
@@ -162,7 +162,7 @@ where
     }
 }
 
-impl<'a, B, T, O> TrIntoFutureMayCancel<'a> for PeekAsync<'a, B, T, O>
+impl<'a, B, T, O> TrIntoFutureMayCancel for PeekAsync<'a, B, T, O>
 where
     B: Deref<Target = Oneshot<T, O>>,
     O: TrCmpxchOrderings,
@@ -170,37 +170,37 @@ where
     type MayCancelOutput = Result<&'a T, RxError<()>>;
 
     #[inline(always)]
-    fn may_cancel_with<C>(
+    fn may_cancel_with<'f, C: TrCancellationToken>(
         self,
-        cancel: Pin<&'a mut C>,
+        cancel: Pin<&'f mut C>,
     ) -> impl Future<Output = Self::MayCancelOutput>
     where
-        C: TrCancellationToken,
+        Self: 'f
     {
         PeekAsync::may_cancel_with(self, cancel)
     }
 }
 
 #[pin_project]
-pub struct PeekFuture<'a, C, B, T, O>
+pub struct PeekFuture<'pkr, 'tok, C, B, T, O>
 where
     C: TrCancellationToken,
     B: Deref<Target = Oneshot<T, O>>,
     O: TrCmpxchOrderings,
 {
-    peeker_: Pin<&'a mut Peeker<B, T, O>>,
-    cancel_: Pin<&'a mut C>,
+    peeker_: Pin<&'pkr mut Peeker<B, T, O>>,
+    cancel_: Pin<&'tok mut C>,
 }
 
-impl<'a, C, B, T, O> PeekFuture<'a, C, B, T, O>
+impl<'pkr, 'tok, C, B, T, O> PeekFuture<'pkr, 'tok, C, B, T, O>
 where
     C: TrCancellationToken,
     B: Deref<Target = Oneshot<T, O>>,
     O: TrCmpxchOrderings,
 {
     pub(super) fn new(
-        peeker: Pin<&'a mut Peeker<B, T, O>>,
-        cancel: Pin<&'a mut C>,
+        peeker: Pin<&'pkr mut Peeker<B, T, O>>,
+        cancel: Pin<&'tok mut C>,
     ) -> Self {
         PeekFuture {
             peeker_: peeker,
@@ -209,13 +209,13 @@ where
     }
 }
 
-impl<'a, C, B, T, O> Future for PeekFuture<'a, C, B, T, O>
+impl<'pkr, C, B, T, O> Future for PeekFuture<'pkr, '_, C, B, T, O>
 where
     C: TrCancellationToken,
     B: Deref<Target = Oneshot<T, O>>,
     O: TrCmpxchOrderings,
 {
-    type Output = Result<&'a T, RxError<()>>;
+    type Output = Result<&'pkr T, RxError<()>>;
 
     fn poll(self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
         let this = self.project();

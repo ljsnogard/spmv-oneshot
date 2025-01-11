@@ -347,25 +347,25 @@ where
 {}
 
 #[pin_project]
-pub struct RecvFuture<'a, C, B, T, O>
+pub struct RecvFuture<'ctx, 'tok, C, B, T, O>
 where
     B: Deref<Target = Oneshot<T, O>>,
     C: TrCancellationToken,
     O: TrCmpxchOrderings,
 {
-    recver_: Pin<&'a mut Receiver<B, T, O>>,
-    cancel_: Pin<&'a mut C>,
+    recver_: Pin<&'ctx mut Receiver<B, T, O>>,
+    cancel_: Pin<&'tok mut C>,
 }
 
-impl<'a, C, B, T, O> RecvFuture<'a, C, B, T, O>
+impl<'ctx, 'tok, C, B, T, O> RecvFuture<'ctx, 'tok, C, B, T, O>
 where
     B: Deref<Target = Oneshot<T, O>>,
     C: TrCancellationToken,
     O: TrCmpxchOrderings,
 {
     pub(super) fn new(
-        receiver: Pin<&'a mut Receiver<B, T, O>>,
-        cancel: Pin<&'a mut C>,
+        receiver: Pin<&'ctx mut Receiver<B, T, O>>,
+        cancel: Pin<&'tok mut C>,
     ) -> Self {
         RecvFuture {
             recver_: receiver,
@@ -374,7 +374,7 @@ where
     }
 }
 
-impl<C, B, T, O> Future for RecvFuture<'_, C, B, T, O>
+impl<C, B, T, O> Future for RecvFuture<'_, '_, C, B, T, O>
 where
     B: Deref<Target = Oneshot<T, O>>,
     C: TrCancellationToken,

@@ -1,18 +1,18 @@
 [package]
 name = "spmv-oneshot"
-version = "0.1.2"
-edition = "2021"
+version = "0.2.0"
+edition = "2024"
 
 authors = ["lino <lino_snsalias@outlook.com>"]
 description = "An oneshot channel that can turn from Single-Producer-Single-Consumer mode to Single-Producer-Multiple-Viewer mode."
-homepage = "https://github.com/ljsnogard/spmv-oneshot"
+repository = "https://github.com/ljsnogard/spmv-oneshot"
 keywords = ["async", "channel"]
 categories = ["no-std"]
 license = "MIT/Apache-2.0"
 readme = "README.md"
 
 [dependencies]
-pincol = { git = "https://github.com/ljsnogard/pincol.git", branch = "dev/0.1.2" }
+pincol = { git = "https://github.com/ljsnogard/pincol.git", branch = "dev/0.2.0" }
 
 pin-project = { version = "1.1.*" }
 pin-utils = { version = "*" }
