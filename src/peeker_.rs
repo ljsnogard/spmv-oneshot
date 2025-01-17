@@ -13,7 +13,7 @@ use pin_utils::pin_mut;
 use pin_project::pin_project;
 
 use abs_sync::cancellation::{
-    NonCancellableToken, TrCancellationToken, TrIntoFutureMayCancel,
+    NonCancellableToken, TrCancellationToken, TrMayCancel,
 };
 use atomex::TrCmpxchOrderings;
 use pincol::x_deps::atomic_sync::x_deps::{abs_sync, atomex};
@@ -153,7 +153,7 @@ where
     B: Deref<Target = Oneshot<T, O>>,
     O: TrCmpxchOrderings,
 {
-    type IntoFuture = PeekFuture<'a, 'a, NonCancellableToken, B, T, O>;
+    type IntoFuture = PeekFuture<'a, 'static, NonCancellableToken, B, T, O>;
     type Output = <Self::IntoFuture as Future>::Output;
 
     fn into_future(self) -> Self::IntoFuture {
@@ -162,7 +162,7 @@ where
     }
 }
 
-impl<'a, B, T, O> TrIntoFutureMayCancel for PeekAsync<'a, B, T, O>
+impl<'a, B, T, O> TrMayCancel<'a> for PeekAsync<'a, B, T, O>
 where
     B: Deref<Target = Oneshot<T, O>>,
     O: TrCmpxchOrderings,
@@ -173,7 +173,7 @@ where
     fn may_cancel_with<'f, C: TrCancellationToken>(
         self,
         cancel: Pin<&'f mut C>,
-    ) -> impl Future<Output = Self::MayCancelOutput>
+    ) -> impl IntoFuture<Output = Self::MayCancelOutput>
     where
         Self: 'f
     {

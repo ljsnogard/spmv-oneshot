@@ -181,7 +181,7 @@ where
     B: Deref<Target = Oneshot<T, O>>,
     O: TrCmpxchOrderings,
 {
-    type IntoFuture = RecvFuture<'a, 'a, NonCancellableToken, B, T, O>;
+    type IntoFuture = RecvFuture<'a, 'static, NonCancellableToken, B, T, O>;
     type Output = <Self::IntoFuture as Future>::Output;
 
     fn into_future(self) -> Self::IntoFuture {
@@ -190,7 +190,7 @@ where
     }
 }
 
-impl<B, T, O> TrIntoFutureMayCancel for ReceiveAsync<'_, B, T, O>
+impl<'a, B, T, O> TrMayCancel<'a> for ReceiveAsync<'a, B, T, O>
 where
     B: Deref<Target = Oneshot<T, O>>,
     O: TrCmpxchOrderings,
@@ -201,7 +201,7 @@ where
     fn may_cancel_with<'f, C: TrCancellationToken>(
         self,
         cancel: Pin<&'f mut C>,
-    ) -> impl Future<Output = Self::MayCancelOutput>
+    ) -> impl IntoFuture<Output = Self::MayCancelOutput>
     where
         Self: 'f,
     {
